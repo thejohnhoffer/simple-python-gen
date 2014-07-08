@@ -17,6 +17,3 @@ Class diagrams contained in an UML project are used for python code generation. 
 | Property | class attribute ||
 | Operation | class operation ||
 | Enumeration | class ||
-
-## Fork ##
-This is a fork from aranega/simple-python-gen
