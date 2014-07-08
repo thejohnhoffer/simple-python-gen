@@ -56,10 +56,17 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[let navig : Bag(Property) = c.getAssociations().navigableOwnedEnd->select(type <> c)]
 	[if (not c.ownedAttribute->union(navig)->isEmpty())]
 	def __init__(self,*args,**kwargs):
+		[if (not inherited->isEmpty())]
+		super([c.name/], self).__init__(*args, **kwargs)
+		[/if]
 		[c.ownedAttribute->union(navig).gen()/]
 	[else]
 	def __init__(self,*args,**kwargs):
+		[if (not inherited->isEmpty())]
+		super([c.name/], self).__init__(*args, **kwargs)
+		[else]
 		pass
+		[/if]
 	[/if][/let]
 	# [protected ('-> properties/constructors for ' + c.name + ' class')]
 
