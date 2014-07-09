@@ -181,9 +181,6 @@ return [o.getReturnResult().genValue()/]
 [/comment]
 [template public genSingleValue(t : Type) ? (not t.oclIsUndefined()) post (trim())]
 [if (t.name = 'String')]""
-[if (not t.ownedComment->isEmpty())]
-[t.ownedComment/]
-[/if]
 [elseif (t.name = 'UnlimitedNatural')]0L
 [elseif (t.name = 'Double')]0.
 [elseif (t.name = 'Real')]0.
