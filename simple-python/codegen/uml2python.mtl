@@ -135,7 +135,8 @@ class [e.name/]:
 
 [template public gen(p : Property)]
 [if (not p.ownedComment->isEmpty())]
-[p.ownedComment.genComment('#')/]
+[comment][p.ownedComment.genComment('#')/][/comment]
+[p.ownedComment.genBody(' ').replaceAll('@valor','')/]
 
 [/if]
 self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValue()/]
@@ -170,9 +171,6 @@ return [o.getReturnResult().genValue()/]
 [/template]
 
 [template public genValue(m : MultiplicityElement) post (trim())]
-[if (not m.ownedComment->isEmpty())]
-hola
-[/if]
 [if (m.isMany())]['['/]]
 [elseif (m.oclIsKindOf(TypedElement))][m.oclAsType(TypedElement).type.genSingleValue()/]
 [else]None
