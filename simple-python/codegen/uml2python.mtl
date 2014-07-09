@@ -135,7 +135,6 @@ class [e.name/]:
 
 [template public gen(p : Property)]
 [comment][p.ownedComment.genComment('#')/][/comment]
-
 self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [if (not p.ownedComment->isEmpty())][p.ownedComment.genBody(' ')/][else][p.genValue()/][/if]
 
 [/template]
