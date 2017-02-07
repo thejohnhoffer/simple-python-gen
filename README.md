@@ -17,3 +17,11 @@ Class diagrams contained in an UML project are used for python code generation. 
 | Property | class attribute |
 | Operation | class operation |
 | Enumeration | class |
+
+## Why a fork? ##
+Because I need my python code generate constructor with super methods. Example:
+```
+class Example(Object):
+    def __init__(self, *args, **kwargs):
+        super(Example, self).__init__(*args, **kwargs)
+```

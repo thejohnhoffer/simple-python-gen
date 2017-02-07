@@ -56,10 +56,18 @@ class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
 	[/if]
 	[let navig : Bag(Property) = c.getAssociations().navigableOwnedEnd->select(type <> c)]
 	[if (not c.ownedAttribute->union(navig)->isEmpty())]
-	def __init__(self):
+	def __init__(self,*args,**kwargs):
+		[if (not inherited->isEmpty())]
+		super([c.name/], self).__init__(*args, **kwargs)
+		[/if]
 		[c.ownedAttribute->union(navig).gen()/]
 	[else]
-	pass
+	def __init__(self,*args,**kwargs):
+		[if (not inherited->isEmpty())]
+		super([c.name/], self).__init__(*args, **kwargs)
+		[else]
+		pass
+		[/if]
 	[/if][/let]
 	# [protected ('-> properties/constructors for ' + c.name + ' class')]
 
@@ -127,11 +135,8 @@ class [e.name/]:
 [/template]
 
 [template public gen(p : Property)]
-[if (not p.ownedComment->isEmpty())]
-[p.ownedComment.genComment('#')/]
-
-[/if]
-self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValue()/]
+[comment][p.ownedComment.genComment('#')/][/comment]
+self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [if (not p.ownedComment->isEmpty())][p.ownedComment.genBody(' ')/][else][p.genValue()/][/if]
 
 [/template]
 
