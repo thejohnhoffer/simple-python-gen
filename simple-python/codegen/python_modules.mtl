@@ -1,9 +1,14 @@
 [comment]
 /*******************************************************************************
- * 
+ * Copyright (c) 2015-2016 GenMyModel
+ * See the file located at https://github.com/genmymodel/generators/blob/master/LICENSE for copying permission.
+ *
  * This python codegen generates __init__.py files for each package and applies
  * a one class per file strategy.
+ * __init__.py file is empty but if you want to deal with autoimports, set the
+ * "autoimport" variable line 21 to "true" 
  *
+ * Author:  Vincent Aranega - GenMyModel
  *******************************************************************************
 [/comment]
 [module python_modules('http://www.eclipse.org/uml2/4.0.0/UML')/]
@@ -16,19 +21,23 @@
 [template public generate(m : Package)]
 [comment @main/]
 [file (m.qualifiedName.replaceAll('::', '/') + '/__init__.py', false, 'UTF-8')]
+[let autoimport : Boolean = true]
+[if (autoimport)]
 [if (not m.ownedComment->isEmpty())]
 """
 [m.ownedComment.genComment(' ')/]
 """
 
 [/if]
-[for (e : Classifier | m.packagedElement->filter(Classifier)->reject(oclIsKindOf(Association))) before('__all__ = [') separator(', ') after(']')]
+[for (e : Classifier | m.ownedType->filter(Classifier)->reject(oclIsKindOf(Association))) before('__all__ = [') separator(', ') after(']')]
 "[e.name/]"[/for]
 
 
-[for (e : Classifier | m.packagedElement->filter(Classifier)->reject(oclIsKindOf(Association)))]
+[for (e : Classifier | m.ownedType->filter(Classifier)->reject(oclIsKindOf(Association)))]
 from .[e.name/] import [e.name/]
 [/for]
+[/if]
+[/let]
 [/file]
 [m.genPackageContent()/]
 [/template]
@@ -63,64 +72,64 @@ from [cl.qualifiedName.replaceAll('::', '.')/] import [cl.name/]
 [/for]
 
 class [c.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
-	[if (not c.ownedComment->isEmpty())]
-	"""
-	[c.ownedComment.genComment(' ')/]
-	"""
-	[/if]
-	[let navig : Bag(Property) = c.getAssociations().navigableOwnedEnd->select(type <> c)]
-	[if (not c.ownedAttribute->union(navig)->isEmpty())]
-	def __init__(self):
-		[c.ownedAttribute->union(navig).gen()/]
-	[else]
-	pass
-	[/if][/let]
-	# [protected ('-> properties/constructors for ' + c.name + ' class')]
+    [if (not c.ownedComment->isEmpty())]
+    """
+    [c.ownedComment.genComment(' ')/]
+    """
+    [/if]
+    [let navig : Bag(Property) = c.getAssociations().navigableOwnedEnd->select(type <> c)]
+    [if (not c.ownedAttribute->union(navig)->isEmpty())]
+    def __init__(self):
+        [c.ownedAttribute->union(navig).gen()/]
+    [else]
+    pass
+    [/if][/let]
+    # [protected ('-> properties/constructors for ' + c.name + ' class')]
 
-	# [/protected]
-	[if (not c.nestedClassifier->isEmpty())]
-	[c.nestedClassifier.genClassif()/]
-	[/if]
-	[if (not c.ownedOperation->isEmpty())]
-		[for (ops : Operation | c.ownedOperation)]
-	[ops.gen()/]
-		[/for]
-	[/if]
-	# [protected ('-> methods for ' + c.name + ' class')]
+    # [/protected]
+    [if (not c.nestedClassifier->isEmpty())]
+    [c.nestedClassifier.genClassif()/]
+    [/if]
+    [if (not c.ownedOperation->isEmpty())]
+        [for (ops : Operation | c.ownedOperation)]
+    [ops.gen()/]
+        [/for]
+    [/if]
+    # [protected ('-> methods for ' + c.name + ' class')]
 
-	# [/protected]
+    # [/protected]
 [/let]
 [/template]
 
 [template public genClassif(i : Interface)]
 [let inherited : Bag(Classifier) = i.generalization.general]
 class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited) separator(', ')][cl.name/][/for][else]object[/if]):
-	[if (not i.ownedComment->isEmpty())]
-	"""
-	[i.ownedComment.genComment(' ')/]
-	"""
-	[/if]
-	[let navig : Bag(Property) = i.getAssociations().navigableOwnedEnd->select(type <> i)]
-	[if (not i.ownedAttribute->union(navig)->isEmpty())]
-	def __init__(self):
-		[i.ownedAttribute->union(navig).gen()/]
-	[else]
-	pass
-	[/if][/let]
-	# [protected ('-> properties/constructors for ' + i.name + ' class(interface)')]
+    [if (not i.ownedComment->isEmpty())]
+    """
+    [i.ownedComment.genComment(' ')/]
+    """
+    [/if]
+    [let navig : Bag(Property) = i.getAssociations().navigableOwnedEnd->select(type <> i)]
+    [if (not i.ownedAttribute->union(navig)->isEmpty())]
+    def __init__(self):
+        [i.ownedAttribute->union(navig).gen()/]
+    [else]
+    pass
+    [/if][/let]
+    # [protected ('-> properties/constructors for ' + i.name + ' class(interface)')]
 
-	# [/protected]
-	[if (not i.nestedClassifier->isEmpty())]
-	[i.nestedClassifier.genClassif()/]
-	[/if]
-	[if (not i.ownedOperation->isEmpty())]
-		[for (ops : Operation | i.ownedOperation)]
-	[ops.gen()/]
-		[/for]
-	[/if]
-	# [protected ('-> methods for ' + i.name + ' class(interface)')]
+    # [/protected]
+    [if (not i.nestedClassifier->isEmpty())]
+    [i.nestedClassifier.genClassif()/]
+    [/if]
+    [if (not i.ownedOperation->isEmpty())]
+        [for (ops : Operation | i.ownedOperation)]
+    [ops.gen()/]
+        [/for]
+    [/if]
+    # [protected ('-> methods for ' + i.name + ' class(interface)')]
 
-	# [/protected]
+    # [/protected]
 [/let]
 [/template]
 
@@ -130,14 +139,14 @@ class [i.name/]([if (not inherited->isEmpty())][for (cl : Classifier | inherited
  */]
 [template public genClassif(e : Enumeration)]
 class [e.name/]:
-	[if (not e.ownedComment->isEmpty())]
-	"""
-	[e.ownedComment.genComment(' ')/]
-	"""
-	[/if]
-	[if (not e.ownedLiteral->isEmpty())]
-	[for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
-	[/if]
+    [if (not e.ownedComment->isEmpty())]
+    """
+    [e.ownedComment.genComment(' ')/]
+    """
+    [/if]
+    [if (not e.ownedLiteral->isEmpty())]
+    [for (lit : EnumerationLiteral | e.ownedLiteral) separator(', ')][lit.name/][/for] = range([e.ownedLiteral->size()/])
+    [/if]
 [/template]
 
 [template public gen(p : Property)]
@@ -151,12 +160,12 @@ self.[if (p.visibility = VisibilityKind::_private)]__[/if][p.name/] = [p.genValu
 
 [template public gen(o : Operation)]
 [o.header()/]
-	[if (not o.ownedComment->isEmpty())]
-	"""
-	[o.ownedComment.genComment(' ')/]
-	"""
-	[/if]
-	[o.bodyOperation()/]	
+    [if (not o.ownedComment->isEmpty())]
+    ""
+    [o.ownedComment.genComment(' ')/]
+    """
+    [/if]
+    [o.bodyOperation()/]	
 [/template]
 
 [**
@@ -214,9 +223,9 @@ return [o.getReturnResult().genValue()/]
 [/template]
 
 [query public isMany(s : MultiplicityElement) : Boolean =
-	s.lower > 1 or s.upper = -1 or s.upper > 1 
+    s.lower > 1 or s.upper = -1 or s.upper > 1 
 /]
 
 [query public isAssociation(p : Property) : Boolean =
-	not p.association.oclIsUndefined()
+    not p.association.oclIsUndefined()
 /]
